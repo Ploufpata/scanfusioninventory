@@ -11,7 +11,7 @@ Instructions pour l'inventaire
 **Inventaire du PC**
    - Le PC sera analysé et son inventaire envoyé à GLPI.
    - Il pourra être retrouvé dans GLPI sous l'étiquette configurée.
-   - Un fichier **OCS** est généré à la racine du dossier \FusionInventory-NoAgent.  
+   - Un fichier OCS est généré à la racine du dossier \FusionInventory-NoAgent.  
      Vous pouvez le récupérer avant de lancer la suppression.
 
 **Modification des paramètres**
