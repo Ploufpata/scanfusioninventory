@@ -178,7 +178,7 @@ $windowBroughtToFront = $false  # Drapeau pour éviter de répéter l'actions
 
 # 5) Commande d'installation de FusionInventory
 $HereString = @"
-bin\fusioninventory-agent_windows-x64_2.6.exe
+ressources\fusioninventory-agent_windows-x64_2.6.exe
 /acceptlicense
 /server='$myURL'
 /tag=$myTAG
