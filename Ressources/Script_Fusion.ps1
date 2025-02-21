@@ -130,7 +130,7 @@ if ($quickEdit -ne 0) {
     exit
 }
 
-# Garder la fenêtre PowerShell au premier plan
+# Bibliothèque Windows (user32.dll) pour manipuler les fenêtres de l'interface
 Add-Type @"
     using System;
     using System.Runtime.InteropServices;
@@ -150,21 +150,21 @@ Add-Type @"
 		public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 		
     }
-"@ -PassThru | Out-Null
+"@
 
 # Récupérer le handle de la fenêtre PowerShell et la mettre en premier plan
 $hWnd = [Win32]::GetForegroundWindow()
 
 # 4) Affectation des variables pour le reste du script
 $myHome       = "$env:USERPROFILE\Desktop\"
-$myURL        = $config['CONFIG']['REMOTE_SERVER']
-$myInstallDir = 'FusionInventory-NoAgent'
-$myLocalDir   = 'FusionInventory-NoAgent'
-$myTAG        = $tagValue
-$logFile      = "$myHome$myInstallDir\logs\fusioninventory-agent.log"
-$errorMsg     = "communication error: 500"
-$receivingMsg = "[http client] receiving"
-$deployMsg    = "Doing Deploy Maintenance"
+$myURL        = $config['CONFIG']['REMOTE_SERVER']						# URL du serveur, modifiable dans le config.ini
+$myInstallDir = 'FusionInventory-NoAgent'  								# Dossier où FusionInventory est installé
+$myLocalDir   = 'FusionInventory-NoAgent' 								# Dossier où le fichier d'inventaire .ocs est sauvegardé
+$myTAG        = $tagValue												# TAG FusionInventory, modifiable dans le config.ini ou lors du démarrage du script
+$logFile      = "$myHome$myInstallDir\logs\fusioninventory-agent.log"	# Chemin d'accès du fichier de log généré lors de l'inventaire
+$errorMsg     = "communication error: 500"								# Message récupéré dans le log qui indique que le serveur n'est pas joignable
+$receivingMsg = "[http client] receiving"								# Message récupéré dans le log qui indique que le serveur répond bien
+$deployMsg    = "Doing Deploy Maintenance"								# Message récupéré dans le log qui indique la fin de l'inventaire
 	
 # Variables pour l'animation du spinner et du timer
 $timeout       = 360  # Temps maximum d'attente (en secondes)
@@ -221,14 +221,12 @@ while (!$process.HasExited) {
     Write-Host -NoNewline "`rInstallation en cours vers $myHome$myInstallDir... $spinnerChar [$elapsed s]"
 }
 
-
 Write-Host ""
 Write-Host "`nInstallation terminée." -ForegroundColor Green
 
-# Supprimer le contenu du dossier logs
+# Supprimer les anciens logs pour éviter de parasiter le script
 $logsPath = "$myHome$myInstallDir\logs"
 
-# Supprimer les anciens logs pour éviter de parasiter le reste du script
 if (Test-Path $logsPath) {
 #    Write-Host "Suppression des anciens logs..."
     Remove-Item -Path "$logsPath\*" -Force -Recurse
@@ -303,7 +301,7 @@ Write-Host "Sinon fermez la fenêtre manuellement."
 Write-Host "----------------------------------------------------------------------"
 Write-Host "En attente d'une touche..." -ForegroundColor Yellow
 
-# Vider le buffer du clavier avant d'attendre une touche
+# Vider le buffer du clavier avant d'attendre une touche (important !)
 while ([System.Console]::KeyAvailable) { [System.Console]::ReadKey($true) | Out-Null }
 
 # Attendre qu'une touche soit pressée
@@ -312,7 +310,7 @@ while ([System.Console]::KeyAvailable) { [System.Console]::ReadKey($true) | Out-
 # Lancer la désinstallation
 Write-Host "`nDésinstallation de FusionInventory en cours..."
 
-# Désinstallation de FusionInventory
+# Désinstallation de FusionInventory (pas nécessaire en mode portable, mais je le laisse en cas de changement)
 $UninstallCmd = '"' + "$myHome$myInstallDir\uninstall.exe" + '" /S'
 Start-Process -FilePath "cmd.exe" -ArgumentList "/c $UninstallCmd" -Wait
 
